@@ -1,170 +1,12 @@
 #include <iostream>
 #include <string>
 #include <random>
+#include "person.h"
+#include "proposal.h"
 
 using namespace std;
 
 enum Regim { DirectDemocracy, RepresentativeDemocracy, Dictatorship };
-
-class Proposal;
-
-class Person {
-
-private:
-	string name;
-	string password;
-	int voteCount = 0;
-
-public:
-	bool canGiveElectionVote = true;
-	bool canVote = true;
-	bool isDictator;
-
-	Person() {
-		this->name = "admin";
-		this->password = "admin";
-		this->isDictator = false;
-	}
-	Person(string indexNumber) {
-		this->name = "admin" + indexNumber;
-		this->password = "admin" + indexNumber;
-		this->isDictator = false;
-	}
-	Person(string password, string name) {
-		this->name = name;
-		this->password = password;
-		this->isDictator = false;
-	}
-
-	void setName(string name) {
-		this->name = name;
-	}
-	string getName() {
-		return this->name;
-	}
-
-	void setPassword(string password) {
-		this->password = password;
-	}
-	string getPassword() {
-		return this->password;
-	}
-
-	void increaseVoteCount() {
-		voteCount++;
-	}
-	void refreshVoteCount() {
-		voteCount = 0;
-	}
-	int getVoteCount() {
-		return voteCount;
-	}
-
-};
-
-class Proposal {
-
-public:
-	Person* personList;
-	string proposal;
-	int numberOfPeople;
-	int yesCount;
-	int noCount;
-	bool isAboutMechanic;
-
-	Proposal() {};
-
-	Proposal(string proposal, Person* personList, int numberOfPeople) {
-		this->proposal = proposal;
-		this->numberOfPeople = numberOfPeople;
-		this->yesCount = 0;
-		this->noCount = 0;
-
-		Person* denemePersonList;
-		denemePersonList = new Person[numberOfPeople];
-
-		for (int index = 0; index < numberOfPeople; index++) {
-			denemePersonList[index] = personList[index];
-		}
-		this->personList = denemePersonList;
-	}
-
-	Proposal(string proposal, Person* personList, int numberOfPeople, bool isAboutMechanic) {
-		this->proposal = proposal;
-		this->numberOfPeople = numberOfPeople;
-		this->yesCount = 0;
-		this->noCount = 0;
-
-		Person* denemePersonList;
-		denemePersonList = new Person[numberOfPeople];
-
-		for (int index = 0; index < numberOfPeople; index++) {
-			denemePersonList[index] = personList[index];
-		}
-		this->personList = denemePersonList;
-		this->isAboutMechanic = isAboutMechanic;
-	}
-
-	void setYesCount(Person whoVotes) {
-		for (int i = 0; i < numberOfPeople; i++) {
-			if (personList[i].getName() == whoVotes.getName()) {
-				for (int j = i; j < numberOfPeople - 1; j++)
-				{
-					personList[j] = personList[j + 1];
-				}
-				yesCount++;
-				numberOfPeople--;
-			}
-
-		}
-
-	}
-	void voteForMechanics(Person whoVotes) {
-		for (int i = 0; i < numberOfPeople; i++) {
-			if (personList[i].getName() == whoVotes.getName()) {
-				for (int j = i; j < numberOfPeople - 1; j++)
-				{
-					personList[j] = personList[j + 1];
-				}
-
-				if (i > 0) {
-					i--;
-				}
-				else {
-					i = 0;
-				}
-				numberOfPeople--;
-			}
-		}
-	}
-
-	void setNoCount(Person whoVotes) {
-		for (int i = 0; i < numberOfPeople; i++) {
-			if (personList[i].getName() == whoVotes.getName()) {
-				for (int j = i; j < numberOfPeople - 1; j++)
-				{
-					personList[j] = personList[j + 1];
-				}
-				noCount++;
-				if (i > 0) {
-					i--;
-				}
-				else {
-					i = 0;
-				}
-				numberOfPeople--;
-			}
-		}
-	}
-
-	void setProposal(string proposal) {
-		this->proposal = proposal;
-	}
-	string getProposal() {
-		return proposal;
-	}
-};
-
 
 void voteFunctionForDictator(int index, bool* regimProposalController, int* givenPorposalCount, Person* personList, Proposal* proposalList, int proposalListCount, string* constitution, int* maddeSayisi, Regim* regim, bool* isElectionOn, int numberOfPeople);
 void createPerson(Person* personArray, int size);
@@ -224,7 +66,7 @@ int main()
 					int logginPanel = 1;
 					while (logginPanel == 1) {
 						int accountSettingsController;
-						cout << "\n1. Change Name and Password\n" << "2. Constitution\n" << "3. Give Proposal\n" << "4. Vote Proposal \n" << "5. Election \n" << "6. Proposals \n" << "0. Exit" << endl;
+						cout << "\n1. Change Name and Password\n" << "2. Constitution\n" << "3. Give Proposal\n" << "4. Vote Proposal \n" << "5. Election \n" << "6. Proposals \n" << "0. Logout" << endl;
 						cin >> accountSettingsController;
 						switch (accountSettingsController)
 						{
@@ -290,7 +132,7 @@ int main()
 						case 6:
 							for (int i = 0; i < proposalListCount; i++) {
 								if (proposalList[i].getProposal() != "") {
-									cout << i + 1 << "- " << "Proposal: " << proposalList[i].getProposal() << " | Yes Count: " << proposalList[i].yesCount << " | No Count: " << proposalList[i].noCount << "\n" << endl;
+									cout << i + 1 << "- " << "Proposal: " << proposalList[i].getProposal() << " | Yes Count: " << proposalList[i].getYesCount() << " | No Count: " << proposalList[i].getNoCount() << "\n" << endl;
 								}
 
 							}
@@ -307,7 +149,7 @@ int main()
 				}
 			}
 
-			cout << "Chose your next action: \n1 - Log in with another person \n2 - Exit Program \n";
+			cout << "Chose your action: \n1 - Log in \n2 - Exit Program \n";
 			cin >> adminPanelLoginAnotherPersonController;
 			switch (adminPanelLoginAnotherPersonController) {
 			case 1:
@@ -317,7 +159,7 @@ int main()
 				cout << "Exiting..." << endl;
 				break;
 			default:
-				cout << "You pressed wrong button. Logging out..." << endl;
+				cout << "You pressed wrong button. You redirect to log in..." << endl;
 				break;
 			}
 		}
@@ -325,7 +167,6 @@ int main()
 	}
 	return 0;
 }
-
 
 void createPerson(Person* personArray, int size) {
 	string name;
@@ -409,9 +250,9 @@ void voteFunctionDirectDemocracy(int index, bool* regimProposalController, int* 
 				if (proposalList[i].getProposal() != "") {
 					for (int j = 0; j < numberOfPeople; j++) {
 
-						if (proposalList[i].personList[j].getName() == personList[index].getName()) {
+						if (proposalList[i].getPersonList()[j].getName() == personList[index].getName()) {
 
-							cout << i + 1 << "- " << "Proposal: " << proposalList[i].getProposal() << " | Yes Count: " << proposalList[i].yesCount << " | No Count: " << proposalList[i].noCount << "\n" << endl;
+							cout << i + 1 << "- " << "Proposal: " << proposalList[i].getProposal() << " | Yes Count: " << proposalList[i].getYesCount() << " | No Count: " << proposalList[i].getNoCount() << "\n" << endl;
 
 						}
 
@@ -429,8 +270,8 @@ void voteFunctionDirectDemocracy(int index, bool* regimProposalController, int* 
 				for (int j = 0; j < numberOfPeople; j++) {
 
 					if ((proposalList[proposalIndex - 1].getProposal() != "")) {
-						if (proposalList[proposalIndex - 1].personList[j].getName() == personList[index].getName()) {
-							if (proposalList[proposalIndex - 1].isAboutMechanic == true) {
+						if (proposalList[proposalIndex - 1].getPersonList()[j].getName() == personList[index].getName()) {
+							if (proposalList[proposalIndex - 1].getIsAboutMechanic() == true) {
 
 								cout << "Please select the next system:\n1-Dictatorship\n2-DirectDemocracy\n3-RepresentativeDemocracy\n\n" << endl;
 
@@ -463,7 +304,7 @@ void voteFunctionDirectDemocracy(int index, bool* regimProposalController, int* 
 										*repres = 0;
 										*regimProposalController = false;
 										for (int i = 0; i < numberOfPeople; i++) {
-											personList[i].canVote = true;
+											personList[i].setCanVoteTrue();
 										}
 									}
 									break;
@@ -491,7 +332,7 @@ void voteFunctionDirectDemocracy(int index, bool* regimProposalController, int* 
 										*repres = 0;
 										*regimProposalController = false;
 										for (int i = 0; i < numberOfPeople; i++) {
-											personList[i].canVote = true;
+											personList[i].setCanVoteTrue();
 										}
 									}
 									break;
@@ -520,7 +361,7 @@ void voteFunctionDirectDemocracy(int index, bool* regimProposalController, int* 
 										*repres = 0;
 										*regimProposalController = false;
 										for (int i = 0; i < numberOfPeople; i++) {
-											personList[i].canVote = true;
+											personList[i].setCanVoteTrue();
 										}
 									}
 									break;
@@ -540,8 +381,8 @@ void voteFunctionDirectDemocracy(int index, bool* regimProposalController, int* 
 
 								switch (decision) {
 								case 1:
-									proposalList[proposalIndex - 1].setYesCount(personList[index]);
-									if (proposalList[proposalIndex - 1].yesCount > numberOfPeople / 2) {
+									proposalList[proposalIndex - 1].increaseYesCount(personList[index]);
+									if (proposalList[proposalIndex - 1].getYesCount() > numberOfPeople / 2) {
 										constitution[*maddeSayisi] = proposalList[proposalIndex - 1].getProposal();
 										*maddeSayisi = *maddeSayisi + 1;
 										// DELETING PROPOSAL 
@@ -562,8 +403,8 @@ void voteFunctionDirectDemocracy(int index, bool* regimProposalController, int* 
 
 									break;
 								case 2:
-									proposalList[proposalIndex - 1].setNoCount(personList[index]);
-									if (proposalList[proposalIndex - 1].noCount > numberOfPeople / 2) {
+									proposalList[proposalIndex - 1].increaseNoCount(personList[index]);
+									if (proposalList[proposalIndex - 1].getNoCount() > numberOfPeople / 2) {
 										// DELETING PROPOSAL
 										for (int i = 0; i < proposalListCount; i++) {
 											if (proposalList[i].getProposal() == proposalList[proposalIndex - 1].getProposal()) {
@@ -604,7 +445,7 @@ void voteFunctionDirectDemocracy(int index, bool* regimProposalController, int* 
 
 void voteFunctionForDictator(int index, bool* regimProposalController, int* givenPorposalCount, Person* personList, Proposal* proposalList, int proposalListCount, string* constitution, int* maddeSayisi, Regim* regim, bool* isElectionOn, int numberOfPeople) {
 
-	if (personList[index].isDictator == true) {
+	if (personList[index].getIsDictator() == true) {
 		cout << "Welcome, our dear Lord, " << personList[index].getName() << ". Which proposal you want to consider? " << endl;
 		for (int i = 0; i < proposalListCount; i++) {
 			if (proposalList[i].getProposal() != "") {
@@ -617,7 +458,7 @@ void voteFunctionForDictator(int index, bool* regimProposalController, int* give
 
 		if (proposalIndex > 0 && proposalIndex < *givenPorposalCount + 1) {
 
-			if (proposalList[proposalIndex - 1].isAboutMechanic == true) {
+			if (proposalList[proposalIndex - 1].getIsAboutMechanic() == true) {
 
 				cout << "Please select the next system:\n1-Dictatorship\n2-DirectDemocracy\n3-RepresentativeDemocracy\n" << endl;
 
@@ -628,7 +469,7 @@ void voteFunctionForDictator(int index, bool* regimProposalController, int* give
 				{
 				case 1:
 					*regim = Dictatorship;
-					personList[index].isDictator = false;
+					personList[index].setIsDictatorFalse();
 					*isElectionOn = true;
 					//	PROPOSAL DELETING FROM PROPOSALLIST
 					for (int i = 0; i < proposalListCount; i++) {
@@ -645,12 +486,12 @@ void voteFunctionForDictator(int index, bool* regimProposalController, int* give
 					*givenPorposalCount = *givenPorposalCount - 1;
 					*regimProposalController = false;
 					for (int i = 0; i < numberOfPeople; i++) {
-						personList[i].canVote = true;
+						personList[i].setCanVoteTrue();
 					}
 					break;
 				case 2:
 					*regim = DirectDemocracy;
-					personList[index].isDictator = false;
+					personList[index].setIsDictatorFalse();
 					//	PROPOSAL DELETING FROM PROPOSALLIST
 					for (int i = 0; i < proposalListCount; i++) {
 						if (proposalList[i].getProposal() == proposalList[proposalIndex - 1].getProposal()) {
@@ -666,7 +507,7 @@ void voteFunctionForDictator(int index, bool* regimProposalController, int* give
 					*givenPorposalCount = *givenPorposalCount - 1;
 					*regimProposalController = false;
 					for (int i = 0; i < numberOfPeople; i++) {
-						personList[i].canVote = true;
+						personList[i].setCanVoteTrue();
 					}
 					break;
 
@@ -674,7 +515,7 @@ void voteFunctionForDictator(int index, bool* regimProposalController, int* give
 				case 3:
 
 					*regim = RepresentativeDemocracy;
-					personList[index].isDictator = false;
+					personList[index].setIsDictatorFalse();
 					*isElectionOn = true;
 					//	PROPOSAL DELETING FROM PROPOSALLIST
 					for (int i = 0; i < proposalListCount; i++) {
@@ -691,7 +532,7 @@ void voteFunctionForDictator(int index, bool* regimProposalController, int* give
 					*givenPorposalCount = *givenPorposalCount - 1;
 					*regimProposalController = false;
 					for (int i = 0; i < numberOfPeople; i++) {
-						personList[i].canVote = true;
+						personList[i].setCanVoteTrue();
 					}
 					break;
 
@@ -755,7 +596,7 @@ void voteFunctionForDictator(int index, bool* regimProposalController, int* give
 
 void voteFunctionForRepresentetiveDemocracy(int index, int* givenPorposalCount, Person* personList, Proposal* proposalList, int proposalListCount, string* constitution, int* maddeSayisi, int numberOfPeople, int* dictator, int* repres, int* direct, Regim* regim, bool* isElectionOn, bool* regimProposalController) {
 
-	if (personList[index].canVote == true) {
+	if (personList[index].getCanVote() == true) {
 
 		string passwordController;
 
@@ -771,9 +612,9 @@ void voteFunctionForRepresentetiveDemocracy(int index, int* givenPorposalCount, 
 					if (proposalList[i].getProposal() != "") {
 						for (int j = 0; j < numberOfPeople; j++) {
 
-							if (proposalList[i].personList[j].getName() == personList[index].getName()) {
+							if (proposalList[i].getPersonList()[j].getName() == personList[index].getName()) {
 
-								cout << i + 1 << "- " << "Proposal: " << proposalList[i].getProposal() << " | Yes Count: " << proposalList[i].yesCount << " | No Count: " << proposalList[i].noCount << "\n" << endl;
+								cout << i + 1 << "- " << "Proposal: " << proposalList[i].getProposal() << " | Yes Count: " << proposalList[i].getYesCount() << " | No Count: " << proposalList[i].getNoCount() << "\n" << endl;
 
 							}
 
@@ -790,9 +631,9 @@ void voteFunctionForRepresentetiveDemocracy(int index, int* givenPorposalCount, 
 					for (int j = 0; j < numberOfPeople; j++) {
 
 						if ((proposalList[proposalIndex - 1].getProposal() != "")) {
-							if (proposalList[proposalIndex - 1].personList[j].getName() == personList[index].getName()) {
+							if (proposalList[proposalIndex - 1].getPersonList()[j].getName() == personList[index].getName()) {
 								// MEKANÝK VOTE
-								if (proposalList[proposalIndex - 1].isAboutMechanic == true) {
+								if (proposalList[proposalIndex - 1].getIsAboutMechanic() == true) {
 
 									cout << "Please select the next system:\n1-Dictatorship\n2-DirectDemocracy\n3-RepresentativeDemocracy\n" << endl;
 
@@ -825,7 +666,7 @@ void voteFunctionForRepresentetiveDemocracy(int index, int* givenPorposalCount, 
 											*repres = 0;
 											*regimProposalController = false;
 											for (int i = 0; i < numberOfPeople; i++) {
-												personList[i].canVote = true;
+												personList[i].setCanVoteTrue();
 											}
 										}
 										break;
@@ -853,7 +694,7 @@ void voteFunctionForRepresentetiveDemocracy(int index, int* givenPorposalCount, 
 											*repres = 0;
 											*regimProposalController = false;
 											for (int i = 0; i < numberOfPeople; i++) {
-												personList[i].canVote = true;
+												personList[i].setCanVoteTrue();
 											}
 										}
 										break;
@@ -881,7 +722,7 @@ void voteFunctionForRepresentetiveDemocracy(int index, int* givenPorposalCount, 
 											*repres = 0;
 											*regimProposalController = false;
 											for (int i = 0; i < numberOfPeople; i++) {
-												personList[i].canVote = true;
+												personList[i].setCanVoteTrue();
 											}
 										}
 										break;
@@ -901,8 +742,8 @@ void voteFunctionForRepresentetiveDemocracy(int index, int* givenPorposalCount, 
 
 									switch (decision) {
 									case 1:
-										proposalList[proposalIndex - 1].setYesCount(personList[index]);
-										if (proposalList[proposalIndex - 1].yesCount > numberOfPeople / 4) {
+										proposalList[proposalIndex - 1].increaseYesCount(personList[index]);
+										if (proposalList[proposalIndex - 1].getYesCount() > numberOfPeople / 4) {
 											constitution[*maddeSayisi] = proposalList[proposalIndex - 1].getProposal();
 											*maddeSayisi = *maddeSayisi + 1;
 											// DELETING PROPOSAL 
@@ -923,8 +764,8 @@ void voteFunctionForRepresentetiveDemocracy(int index, int* givenPorposalCount, 
 
 										break;
 									case 2:
-										proposalList[proposalIndex - 1].setNoCount(personList[index]);
-										if (proposalList[proposalIndex - 1].noCount > numberOfPeople / 4) {
+										proposalList[proposalIndex - 1].increaseNoCount(personList[index]);
+										if (proposalList[proposalIndex - 1].getNoCount() > numberOfPeople / 4) {
 											// DELETING PROPOSAL
 											for (int i = 0; i < proposalListCount; i++) {
 												if (proposalList[i].getProposal() == proposalList[proposalIndex - 1].getProposal()) {
@@ -977,7 +818,7 @@ void electionVote(Person* personList, int numberOfPeople, int peopleIndex, Regim
 	{
 	case Dictatorship:
 
-		if (personList[peopleIndex].canGiveElectionVote == true) {
+		if (personList[peopleIndex].getCanGiveElectionVote() == true) {
 			cout << "Please, enter the number of person that you want to vote to choose your Great Lord... " << endl;
 
 			for (int index = 0; index < numberOfPeople; index++) {
@@ -990,7 +831,7 @@ void electionVote(Person* personList, int numberOfPeople, int peopleIndex, Regim
 
 			if (votedPerson > -1 && votedPerson < numberOfPeople) {
 				personList[votedPerson].increaseVoteCount();
-				personList[peopleIndex].canGiveElectionVote = false;
+				personList[peopleIndex].toggleCanGiveElectionVote();
 
 				int totalVote = 0;
 				for (int index = 0; index < numberOfPeople; index++) {
@@ -1025,7 +866,7 @@ void electionVote(Person* personList, int numberOfPeople, int peopleIndex, Regim
 
 							if (personList[i].getName() == voteList[numberOfPeople - 1 - num].getName()) {
 
-								personList[i].isDictator = true;
+								personList[i].setIsDictatorTrue();
 
 								cout << "The new dictator is " << personList[i].getName() << endl;
 							};
@@ -1037,7 +878,7 @@ void electionVote(Person* personList, int numberOfPeople, int peopleIndex, Regim
 
 							if (personList[i].getName() == voteList[numberOfPeople - 1].getName()) {
 
-								personList[i].isDictator = true;
+								personList[i].setIsDictatorTrue();
 
 								cout << "The new dictator is " << personList[i].getName() << endl;
 							};
@@ -1048,7 +889,7 @@ void electionVote(Person* personList, int numberOfPeople, int peopleIndex, Regim
 
 						if (personList[i].getName() == voteList[numberOfPeople - 1].getName()) {
 
-							personList[i].isDictator = true;
+							personList[i].setIsDictatorTrue();
 						};
 
 					}
@@ -1058,7 +899,7 @@ void electionVote(Person* personList, int numberOfPeople, int peopleIndex, Regim
 					// Refreshing
 					for (int i = 0; i < numberOfPeople; i++) {
 
-						personList[i].canGiveElectionVote = true;
+						personList[i].refreshCanGiveElectionVote();
 						personList[i].refreshVoteCount();
 					}
 
@@ -1067,7 +908,7 @@ void electionVote(Person* personList, int numberOfPeople, int peopleIndex, Regim
 				break;
 			}
 			else if (votedPerson == -1) {
-				personList[peopleIndex].canGiveElectionVote = false;
+				personList[peopleIndex].toggleCanGiveElectionVote();
 			}
 		}
 		else {
@@ -1077,7 +918,7 @@ void electionVote(Person* personList, int numberOfPeople, int peopleIndex, Regim
 		break;
 	case RepresentativeDemocracy:
 
-		if (personList[peopleIndex].canGiveElectionVote == true) {
+		if (personList[peopleIndex].getCanGiveElectionVote() == true) {
 			cout << "Please enter the number of person you want to vote for your representative person : " << endl;
 			for (int index = 0; index < numberOfPeople; index++) {
 
@@ -1089,7 +930,7 @@ void electionVote(Person* personList, int numberOfPeople, int peopleIndex, Regim
 
 			if (votedPerson > -1 && votedPerson < numberOfPeople) {
 				personList[votedPerson].increaseVoteCount();
-				personList[peopleIndex].canGiveElectionVote = false;
+				personList[peopleIndex].toggleCanGiveElectionVote();
 
 				int totalVote = 0;
 				for (int index = 0; index < numberOfPeople; index++) {
@@ -1120,7 +961,7 @@ void electionVote(Person* personList, int numberOfPeople, int peopleIndex, Regim
 
 						for (int j = 0; j < numberOfPeople; j++) {
 							if (personList[j].getName() == voteList[i].getName()) {
-								personList[j].canVote = false;
+								personList[j].setCanVoteFalse();
 								break;
 							}
 						}
@@ -1131,7 +972,7 @@ void electionVote(Person* personList, int numberOfPeople, int peopleIndex, Regim
 
 					for (int i = 0; i < numberOfPeople; i++) {
 
-						if (personList[i].canVote == true) {
+						if (personList[i].getCanVote() == true) {
 							cout << "Name : " << personList[i].getName() << endl;
 						}
 
@@ -1140,7 +981,7 @@ void electionVote(Person* personList, int numberOfPeople, int peopleIndex, Regim
 					// Refreshing
 					*isElectionOn = false;
 					for (int i = 0; i < numberOfPeople; i++) {
-						personList[i].canGiveElectionVote = true;
+						personList[i].refreshCanGiveElectionVote();
 						personList[i].refreshVoteCount();
 					}
 
